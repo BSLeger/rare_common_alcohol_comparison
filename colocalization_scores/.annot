@@ -1,0 +1,9 @@
+	z_comb	z_12	observed_overlap	expected_overlap_mean	expected_overlap_std	empirical_p	obs_exp	 filename
+0	2	1.0	310	313.92	14.924932160649842	0.60358895757865	0.987512742099898	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+1	2	1.5	154	152.19	12.262703617065853	0.4413284247711972	1.011893028451278	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+3	3	1.0	218	219.87	14.61892950937243	0.5508924112350823	0.9914949743029972	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+4	3	1.5	144	141.78	11.676968784748892	0.4246083981549157	1.0156580617858655	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+5	3	2.0	61	62.23	6.446479659473067	0.5756595654989263	0.9802346135304516	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+6	5	1.0	118	113.08	10.809884365709005	0.32450461968430233	1.0435090201627166	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+7	5	1.5	95	91.91	8.566323598837485	0.3591563169590115	1.0336198455010337	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20
+8	5	2.0	59	59.05	7.354420439436408	0.5027122409605862	0.9991532599491957	colocScore_rare_strin_allcut_alcoholintake_ukbb_alcoholintake_magma_pcnet_v20

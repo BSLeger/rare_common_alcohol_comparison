@@ -1,0 +1,14 @@
+rare variant dataset (code: description)	common variant dataset (code: description)	combined cutoff (z-score)	individal cutoff (z-score)	size observed overlap	size expected overlap	expected overlap error (stdev)	p-value overlap	observed/expected network size	lower error	upper error	label
+alcohol intake custom alcohol intake	GSCAN EUR drinks per week	3	1.5	208	147.201	11.23094561	1.2e-10	1.413	0.1837847692779111	0.2484965022046981	alc rare| alc common
+alcohol intake custom alcohol intake	UKB 20153 irnt Forced expiratory volume in 1-second (FEV1), predicted	3	1.5	145	157.48	11.7554073	0.85580022	0.92075184	0.11751940359623614	0.15780101113656098	alc rare| ctrl 20153
+alcohol intake custom alcohol intake	UKB 4104 Heel quantitative ultrasound index (QUI)	3	1.5	140	158.85	11.9677692	0.94237914	0.88133459	0.11339845826827744	0.1526909635151994	alc rare| ctrl 4104
+100016 potassium intake	GSCAN EUR drinks per week	3	1.5	134	125.2	9.36482781	0.17368926	1.07028754	0.13684780155186382	0.183866406316189	ctrl 100016 rare| alc common
+20016 fluid intelligence score	GSCAN EUR drinks per week	3	1.5	154	145.42	11.3429978	0.22470057	1.05900151	0.14043360289569562	0.19112305281732378	ctrl 20016 rare| alc common
+20153 irnt Forced expiratory volume in 1-second (FEV1), predicted	GSCAN EUR drinks per week	3	1.5	269	285.06	16.0273641	0.84183696	0.94366098	0.09366915948266419	0.11687067222152825	ctrl 20153 rare| alc common
+20153 irnt Forced expiratory volume in 1-second (FEV1), predicted	UKB 20153 irnt Forced expiratory volume in 1-second (FEV1), predicted	3	1.5	363	307.53	14.7671629	8.62e-05	1.18037265	0.10153627882855587	0.12263442854845086	ctrl 20153 rare| ctrl 20153
+4194 Pulse rate	GSCAN EUR drinks per week	3	1.5	153	142.35	10.7166926	0.16016578	1.0748156	0.13820353060110768	0.18604923827631747	ctrl 4194 rare| alc common
+78 Heel bone mineral density (BMD) T-score, automated	GSCAN EUR drinks per week	3	1.5	362	323.45	15.8476339	0.00749667	1.1191838	0.09805997055664073	0.11889440654681782	ctrl 78 rare| alc common
+C44 Other malignant neoplasms of skin	GSCAN EUR drinks per week	3	1.5	174	156.1	11.7732748	0.06420617	1.11467008	0.14355581037006326	0.19336081012120165	ctrl C44 rare| alc common
+C50 Malignant neoplasm of breast	GSCAN EUR drinks per week	3	1.5	133	157.51	11.2458837	0.9853514	0.84439083	0.10365805993166177	0.1373903529356909	ctrl C50 rare| alc common
+alcohol intake custom alcohol intake- stringent cutoff	GSCAN EUR drinks per week	3	1.5	181	129.27	11.8885281	6.77e-06	1.40017019	0.21384127460685498	0.3078848051224852	alc strin rare| alc common
+alcohol intake custom alcohol intake	UKB_alcohol_intake	3	1.5	142	148.94	9.895271598	0.758456155	0.953404055	0.10984670927130347	0.14273787713145247	alc rare| ukbb alc common
