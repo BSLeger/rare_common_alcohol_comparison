@@ -1,0 +1,8 @@
+Number of input genes	208
+Number of background genes	57241
+Number of input genes with recognised Ensembl ID	195
+Input genes without recognised Ensembl ID	ERBIN:BBLN:ADGRG5:ATG101:LINS1:TENT2:CD24:ADGRL1:ADGRG6:LRATD2:TESMIN:ECRG4:ZBED9-AS1
+Number of background genes with recognised Ensembl ID	56954
+Background genes without recognised Ensembl ID	NA
+Number of input genes with unique entrez ID	195
+Number of background genes with unique entrez ID	24149
