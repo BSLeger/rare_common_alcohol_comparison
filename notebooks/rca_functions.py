@@ -156,7 +156,7 @@ def venn_net(tblr, tblc, tblr_label, tblc_label, p_net_overlap,tblr_lim=1.5, tbl
       set_colors=(color_dict['rare'], color_dict['common']), alpha = 0.7)
     plt.title('p='+str(p_net_overlap)+ ', single cut='+str(tblr_lim)+', comb cut='+str(comb_lim))
     if savefig:
-        plt.savefig('figures/network_venn/network_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
+        plt.savefig('figures/network_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
     
 #adapted from BMI
@@ -175,7 +175,7 @@ def venn_seeds(tblr_seed, tblc_seed, tblr_label, tblc_label, all_nodes, savefig=
           set_colors=(color_dict['rare'], color_dict['common']), alpha = 0.7)
     plt.title(' Seed Gene Overlap, p='+str(p_intersect_seed))
     if (savefig):
-        plt.savefig('figures/seed_venn/seed_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
+        plt.savefig('figures/seed_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
 
 #adapted from BMI functions
@@ -218,7 +218,7 @@ def plt_histogram (tblr, tblc, tblr_label, tblc_label, tblr_seed, tblc_seed, tbl
     plt.axvline(x = 0, color='black', linestyle = 'solid', linewidth=1)
     plt.axhline(y = 0, color = 'black', linestyle = 'solid', linewidth=1)
     if (savefig):
-        plt.savefig('figures/histogram/histogram_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
+        plt.savefig('figures/histogram_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
 
 
@@ -262,78 +262,6 @@ def import_nps_zscores(z_path, interactome_name='pcnet_v14'):
 
 #network propagation functions
 
-def run_net_prop(path, trait_name, pcol, gene_col, delim, cutoff=None, graph=None, w_double_prime=None, interactome='pcnet_v14', ndex_user=None, ndex_password=None, savefile=False):
-    """
-    Executes network propagation analysis for a given trait using provided seed genes and provided interactome.
-
-    Parameters:
-    - path (str): The file path to the seed gene file.
-    - trait_name (str): The name of the trait for which the analysis is being run.
-    - pcol (str): The column name in the seed genes file that contains the p-values.
-    - gene_col (str): The column name in the seed genes file that specifies the gene names.
-    - delim (str): The delimiter used in the seed genes file.
-    - cutoff (float, optional): The p-value cutoff for filtering seed genes. If None (Default), no filtering is applied. Defaults to None.
-    - graph (NetworkX graph, optional): The interactome network graph. If None, the graph is imported using the interactome parameter. Defaults to None.
-    - w_double_prime (numpy.ndarray, optional): Pre-calculated matrix for network propagation. If None, it is calculated in the function. Defaults to None.
-    - interactome (str, optional): The name of the interactome. If no graph is provided, this will be imported using the import_interactome function which accepts UUIDs or keys to the UUIDs dictionary. Will used as a label for exported interactome files. Defaults to 'pcnet_v14', which was used for this analysis.
-    - ndex_user (str, optional): NDEx account username, required if uploading results to NDEx. Defaults to None.
-    - ndex_password (str, optional): NDEx account password, required if uploading results to NDEx. Defaults to None.
-
-    Returns:
-	NPS zscores
- 
-    Notes:
-    - The function requires an external library for network propagation calculations.
-    - The seed genes file should contain a column for genes and a column for their associated p-values.
-    - The function saves three files: z-scores, raw heats, and randomized heats for the network analysis,
-      with the trait name and optionally the interactome name as part of the filenames.
-    - If using a private interactome, ensure the ndex_user and ndex_password are correctly provided.
-    """
-    data = import_seedgenes(path, pcol, gene_col, delim)
-    data = list(data[gene_col])
-    if graph is None:
-        graph = import_interactome(interactome)
-        print("importing network " + interactome)
-    if w_double_prime is None:
-        # pre calculate mats used for netprop
-        print('\ncalculating w_prime')
-        w_prime = netprop.get_normalized_adjacency_matrix(graph, conserve_heat=True) 
-        print('\ncalculating w_double_prime')
-        w_double_prime = netprop.get_individual_heats_matrix(w_prime, 0.5)
-    else:
-        print("using provided w_double_prime - please ensure that w_double_prime aligns to graph provided")
-    graph_nodes = list(graph.nodes())
-    #print(graph_nodes)
-    data = list(set(data).intersection(graph_nodes))
-    #print(data)
-    ##calculate heats
-    z_score, Fnew_score, Fnew_rand_score = netprop_zscore.calculate_heat_zscores(
-        w_double_prime,  
-        graph_nodes,
-        dict(graph.degree), 
-        data, num_reps=1000,
-        minimum_bin_size=100
-    )
-    if savefile:
-        export_path = 'calculated_values/network_scores/'
-        if graph is None and interactome == 'pcnet_v14':
-            prefix = (export_path + trait_name).lower()
-        elif graph is None and interactome != 'pcnet_v14':
-            prefix = (export_path + trait_name + '_' + interactome).lower()
-        elif graph is not None and interactome != 'pcnet_v14':
-            prefix = (export_path + trait_name + '_' + interactome).lower()
-        else:
-            print("saving file without interactome_prefix, please provide an interactome name if prefix wanted")
-            prefix = ('network_scores/' + trait_name).lower()
-
-        z_score.to_csv(prefix + '_zscore.tsv', sep='\t', header=False)
-        if saveheat:
-            Fnew_score.to_csv(prefix + '_heats.tsv', sep='\t', header=False)
-            pd.DataFrame(Fnew_rand_score, columns=z_score.index).to_csv((prefix+'_randheats.tsv'),sep='\t')
-        else:
-            print('calculated NPS not saved')
-    return z_score
-
 
 def import_interactome(interactome_name=None, ndex_user=None, ndex_password=None,UUID=None):
     interactome_uuid=UUIDs[interactome_name]
@@ -374,7 +302,7 @@ def import_interactome(interactome_name=None, ndex_user=None, ndex_password=None
     #relabel the nodes with the gene name instead of an arbitrary number
 
 
-#non-network functions
+#non-network functions-----------------
 
 #manhattan
 def sorted_nicely( l ):
@@ -780,7 +708,7 @@ def plot_permutation_histogram(permuted, observed, title="", xlabel="Observed vs
         plt.savefig('figures/' + filename + '.svg', bbox_inches='tight')
 
 
-## Extensions to NetColoc ------------------------------------------------------------------------------------
+## Extensions to NetColoc from CrossSpeciesBMI github --------------------------------------------------------------------
 def get_p_from_permutation_results(observed, permuted):
     """Calculates the significance of the observed mean relative to the empirical normal distribution of permuted means.
 
@@ -860,7 +788,7 @@ def calculate_mean_z_score_distribution(z1, z2, num_reps=1000, zero_double_negat
                     
         permutation_means[i] = np.mean(perm_z1z2)
     return np.mean(z1z2.zz), permutation_means
-
+## FUNCTIONS FOR VALIDATING FROM THE GWAS CATALOG--------------------------
 def format_catalog(catalog=None):
 	try:
 		#make all annotations lowercase for consistency for querying
@@ -976,6 +904,7 @@ def f_test(group1, group2):
    p_value = 1-stats.f.cdf(f, nun, dun)
    return f, p_value
 
+
 def combine_nps_table(tblr, tblc):
     tbl_z=pd.concat([tblr, tblc], axis=1)
     tbl_z.columns=('z1','z2')
@@ -983,7 +912,7 @@ def combine_nps_table(tblr, tblc):
     tbl_z.columns=['NPSr','NPSc','NPScr']
     return(tbl_z)
 
-def venn_rare_test(t1, t2, t3, labels,colors):
+def venn_rare_test(t1, t2, t3, labels,colors,save_fig=False):
     only_t1 = len(t1 - t2 - t3)
     only_t2 = len(t2 - t1 - t3)
     only_t3 = len(t3 - t1 - t2)
@@ -994,6 +923,8 @@ def venn_rare_test(t1, t2, t3, labels,colors):
 
     t1_t2_t3 = len(t1 & t2 & t3)
     venn3(subsets=(only_t1, only_t2, only_t1_t2, only_t3, only_t1_t3, only_t2_t3, t1_t2_t3), set_labels=labels,set_colors=colors,alpha=.6)
+    if save_fig:
+        plt.savefig('figures/' + 'venn_rare_genes_test'+'.svg',bbox_inches='tight')
     plt.show()
 	
 def NPS_lineplot(df,metric, filename, xrange=None, yrange=None, save_fig=False, sigline=False):
