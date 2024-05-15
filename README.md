@@ -5,6 +5,26 @@ Purpose: This respository contains the analysis notebooks used for generating th
 Briefly, this repository was used to generate a molecular gene network from rare and common variants associated with alcohol consumption, the alcohol consumption network (ACN). These notebooks were also used to validate this network.
 
 Contents of this repository:
+-   conda_environment.yml- contains the packages needed for running these functions. NOTE: These notebooks require NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
+        DDOT can be installed one of two ways:
+            To install DDOT by downloading the zip file of the source tree:
+            wget https://github.com/idekerlab/ddot/archive/refs/heads/python3.zip
+            unzip python3.zip
+            cd ddot-python3
+            python setup.py bdist_wheel
+            pip install dist/ddot*py3*whl
+            
+            To install DDOT by cloning the repo:
+            git clone --branch python3 https://github.com/idekerlab/ddot.git
+            cd ddot
+            python setup.py bdist_wheel
+            pip install dist/ddot*py3*whl
+            Note
+
+            Due to dependency issue DDOT, will not work with Python 3.10 or later
+
+            Additional requirements for full functionality of example notebook: cdapsutil >= 0.2.0a1 which can be installed using pip install cdapsutil
+
 -	common_datasets_prepub.csv- contains meta data for common variant traits in this repository. Called by all notebooks
 -	rare_datasets_prepub.csv- contains meta data for rare variant traits in this repository. Called by all notebooks
 -	input_files- contains all values that were generated externally, that are used in this repository.
