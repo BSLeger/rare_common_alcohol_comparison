@@ -1,61 +1,61 @@
-Read Me:
-
-Purpose: This respository contains the analysis notebooks used for generating the figures and tables in the manuscript “Rare and Common Variants Associated with Alcohol Consumption Identify a Conserved Molecular Network.” Source data is from Genebass (https://doi.org/10.1016/j.xgen.2022.100168), GSCAN (https://doi.org/10.1038/s41586-022-05477-4), and the Neale lab (https://docs.google.com/spreadsheets/d/1kvPoupSzsSFBNSztMzl04xMoSC3Kcx3CrjVf4yBmESU/edit#gid=227859291). SNP2Gene was run using MAGMA. Due to size of files, only the MAGMA gene level input data are included in this repository. 
+## Purpose: 
+This respository contains the analysis notebooks used for generating the figures and tables in the manuscript “Rare and Common Variants Associated with Alcohol Consumption Identify a Conserved Molecular Network.” Source data is from 
+* Genebass (https://doi.org/10.1016/j.xgen.2022.100168)
+* GSCAN (https://doi.org/10.1038/s41586-022-05477-4)
+* the Neale lab (https://docs.google.com/spreadsheets/d/1kvPoupSzsSFBNSztMzl04xMoSC3Kcx3CrjVf4yBmESU/edit#gid=227859291).
+SNP2Gene was run using MAGMA. Due to size of files, only the MAGMA gene level input data are included in this repository. 
 
 Briefly, this repository was used to generate a molecular gene network from rare and common variants associated with alcohol consumption, the alcohol consumption network (ACN). These notebooks were also used to validate this network.
+## Requirements
+* conda_environment.yml- contains the packages needed for running these functions. 
+* NOTE: These notebooks use NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
+* DDOT can be installed one of two ways:
 
-Contents of this repository:
--   conda_environment.yml- contains the packages needed for running these functions. NOTE: These notebooks require NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
-        DDOT can be installed one of two ways:
-            To install DDOT by downloading the zip file of the source tree:
-            wget https://github.com/idekerlab/ddot/archive/refs/heads/python3.zip
-            unzip python3.zip
-            cd ddot-python3
-            python setup.py bdist_wheel
-            pip install dist/ddot*py3*whl
-            
-            To install DDOT by cloning the repo:
-            git clone --branch python3 https://github.com/idekerlab/ddot.git
-            cd ddot
-            python setup.py bdist_wheel
-            pip install dist/ddot*py3*whl
-            Note
+     ```
+    wget https://github.com/idekerlab/ddot/archive/refs/heads/python3.zip
+    unzip python3.zip
+    cd ddot-python3
+    python setup.py bdist_wheel
+    pip install dist/ddot*py3*whl
+    ```
+    or via Github:
+    ```
+    git clone --branch python3 https://github.com/idekerlab/ddot.git
+    cd ddot
+    python setup.py bdist_wheel
+    pip install dist/ddot*py3*whl
+    ```
+* Note: due to dependency issue DDOT, will not work with Python 3.10 or later
+* Additional requirements for full functionality: cdapsutil >= 0.2.0a1 which can be installed using pip install cdapsutil
 
-            Due to dependency issue DDOT, will not work with Python 3.10 or later
+## Contents of this repository:
+* conda_environment.yml- contains the packages needed for running these functions. NOTE: These notebooks require NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
+* common_datasets_prepub.csv- contains meta data for common variant traits in this repository. Called by all notebooks
+* rare_datasets_prepub.csv- contains meta data for rare variant traits in this repository. Called by all notebooks
 
-            Additional requirements for full functionality of example notebook: cdapsutil >= 0.2.0a1 which can be installed using pip install cdapsutil
+**input_files- directory: contains all values that were generated externally, that are used in this repository.**
+* ACN_family.csv- gene family annotations for genes in the ACN. Defined manually using HGNC and Uniprot.
+* gProfiler_hsapiens_8-23-2023_5-47-43 PM__intersections_FDR25.csv- gprofiler tissue enrichment analysis of genes in the ACN.
+* FUMA_gene2func_fdr25_alcoholintake_network
+* gwas_catalog_v1.0.2-associations_e111_r2024-04-22.tsv.gz
+* GSCAN_DPW- directory: Contains gene level and SNP level common variant associations for alcohol intake (via GSCAN)
+* neale_ctrl- directory: contains gene level associations for negative control traits from the Neale lab.
+* combined_phewas.tsv- table of all rare variant phenotype associations for genes in the ACN from Genebass.
+* rare_variant_genebass- directory: contains gene-level associations from Genebass for various negative control traits and for alcohol_intake.
 
--	common_datasets_prepub.csv- contains meta data for common variant traits in this repository. Called by all notebooks
--	rare_datasets_prepub.csv- contains meta data for rare variant traits in this repository. Called by all notebooks
--	input_files- contains all values that were generated externally, that are used in this repository.
-  o	ACN_family.csv- gene family annotations for genes in the ACN. Defined manually using HGNC and Uniprot.
-  o	gProfiler_hsapiens_8-23-2023_5-47-43 PM__intersections_FDR25.csv- gprofiler tissue enrichment analysis of genes in the ACN.
-  o	FUMA_gene2func_fdr25_alcoholintake_network
-  o	gwas_catalog_v1.0.2-associations_e111_r2024-04-22.tsv.gz
-  o	GSCAN_DPW- directory
-    	Contains gene level and SNP level common variant associations for alcohol intake (via GSCAN)
-  o	neale_ctrl- directory
-    	contains gene level associations for negative control traits from the Neale lab.
-  o	combined_phewas.tsv- table of all rare variant phenotype associations for genes in the ACN from Genebass.
-  o	rare_variant_genebass- directory
-    	contains gene-level associations from Genebass for various negative control traits and for alcohol_intake.
--	notebooks- contains all notebooks used for this analysis. Analysis heavily dependent on NetColoc
-  o	rca_functions.py- contains all helper functions for running these notebooks
-  o	rare_common_direct_comp.ipynb- directly compares common and rare variants and genes for alcohol consumption without network propagation
-  o	network_prop.ipynb- used for generating single trait networks from gene level annotations
-  o	rare_common_colocalization.ipynb- colocalization of the networks generated in network_prop, and analysis of the significance of these networks
-  o	validate_network.ipynb- validation of the ACN generated in rare_common_colocalization.ipynb. This includes integration of gene enrichment from tissues and the gwas catalog.
--	calculated_values- directory
-  o	contains all values generated by this analysis
-  o	ACN_annotated_nodes.csv- Produced by validate_network.ipynb. Table of all nodes in the ACN 
-  o	colocalization_scores- directory
-    	the network colocalization scores for all trait comparisons analyzed in rare_common_colocalization.ipynb.
-  o	gwas_catalog_traitlist- directory
-    	contains lists of all traits in the gwas catalog that were defined as being members of a given trait group. These groups include alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits. All lists are mutally exclusive. These were used for enrichment analysis in validate_network.ipynb
-  o	rare_seed_gene_catalog.csv- annotation from the GWAS catalog for genes from rare variants for alcohol consumption for 4 umbrella traits (alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits).
-  o	all_nodes_ACNscore_PCNET.csv- the network propagation scores (NPS) for all genes in PCNet. Calculated using NetColoc. Generated in rare_common_colocalization.ipynb
-  o	common_seed_geneGWAS_catalog.csv- annotation from the GWAS catalog for genes from common variants for alcohol consumption for 4 umbrella traits (alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits).
--	network_scores- directory
-o	contains the NPS for all traits generated in network_prop.ipynb
+**notebooks- contains all notebooks used for this analysis. Analysis heavily dependent on NetColoc**
+* rca_functions.py- contains all helper functions for running these notebooks
+* rare_common_direct_comp.ipynb- directly compares common and rare variants and genes for alcohol consumption without network propagation
+* network_prop.ipynb- used for generating single trait networks from gene level annotations
+* rare_common_colocalization.ipynb- colocalization of the networks generated in network_prop, and analysis of the significance of these networks
+* validate_network.ipynb- validation of the ACN generated in rare_common_colocalization.ipynb. This includes integration of gene enrichment from tissues and the gwas catalog.
 
-
+**calculated_values- directory: contains all values generated by this analysis**
+* ACN_annotated_nodes.csv- Produced by validate_network.ipynb. Table of all nodes in the ACN 
+* colocalization_scores- directory: contains the network colocalization scores for all trait comparisons analyzed in rare_common_colocalization.ipynb.
+* gwas_catalog_traitlist- directory: contains lists of all traits in the gwas catalog that were defined as being members of a given trait group. These groups include alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits. All lists are mutally exclusive. These were used for enrichment analysis in validate_network.ipynb
+* rare_seed_gene_catalog.csv- annotation from the GWAS catalog for genes from rare variants for alcohol consumption for 4 umbrella traits (alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits).
+* all_nodes_ACNscore_PCNET.csv- the network propagation scores (NPS) for all genes in PCNet. Calculated using NetColoc. Generated in rare_common_colocalization.ipynb
+* common_seed_geneGWAS_catalog.csv- annotation from the GWAS catalog for genes from common variants for alcohol consumption for 4 umbrella traits (alcohol use, nicotine use and smoking, substance use disorders, and neuropsychiatric traits).
+* network_scores- directory: contains the NPS for all traits generated in network_prop.ipynb
+**figures-directory: contains all figures generated by these notebooks**
