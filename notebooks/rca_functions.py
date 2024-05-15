@@ -7,7 +7,8 @@ import scipy.stats as stats
 import matplotlib
 from scipy.stats import hypergeom
 import seaborn as sns
-from matplotlib_venn import venn2 
+from matplotlib_venn import venn2
+from matplotlib_venn import venn3
 import ndex2
 import networkx as nx
 from netcoloc import netprop_zscore
@@ -16,6 +17,7 @@ from netcoloc import network_colocalization
 import re
 from scipy.stats import norm
 import math
+from tqdm import tqdm
 
 
 #variables
@@ -47,6 +49,7 @@ color_dict={
     'SKAT':'#ff03c8',
     'SKAT-O':'#474b96',
     'burden':'#fcba03',
+	'Burden':'#fcba03',
     'pLoF':'#fcba03',
     'misLC':'#189B48',
     'syn':'#ff03c8',
@@ -137,51 +140,23 @@ def export_network(network, name, user, password, ndex_server='public.ndexbio.or
 #plotting functions
 
 #adapted from BMI
-def venn_net(tblr, tblc, tblr_label, tblc_label, p_net_overlap,tblr_lim=1.5, tblc_lim=1.5, comb_lim=3, savefig=False):    
-    """
-    Generates a Venn diagram to visualize the overlap between genes  based on z-score thresholds.
-
-    This function combines two input tables with z-scores, calculates a combined z-score by multiplying
-    the z-scores from each table, and identifies items present in both tables based on specified z-score 
-    thresholds. It then generates a Venn diagram visualizing the overlap and unique items in each dataset,
-    and saves the figure as an SVG file.
-
-    Parameters:
-    - tblr (pandas.DataFrame): First input table with z-scores for each item.
-    - tblc (pandas.DataFrame): Second input table with z-scores for each item.
-    - tblr_label (str): Label for the first dataset to be used in the Venn diagram.
-    - tblc_label (str): Label for the second dataset to be used in the Venn diagram.
-    - p_net_overlap (float): p-value for the network overlap to be displayed in the diagram title.
-    - tblr_lim (float, optional): Threshold for z-scores in the first table. Defaults to 1.5.
-    - tblc_lim (float, optional): Threshold for z-scores in the second table. Defaults to 1.5.
-    - comb_lim (float, optional): Threshold for the combined z-score to consider an item present
-    - savefig (boolean, optional): determine whether or not the figure will be saved as an SVG
-      in the network. Defaults to 3.
-
-    Returns:
-    None: The function saves the Venn diagram as an SVG file and does not return any value.
-
-    Note:
-    - The function assumes that the input tables are pandas DataFrames with z-scores.
-    - The `color_dict` variable, used to define set colors, and the `UUID_tag` and `interactome_name`
-      variables, used in the filename, are assumed to be defined outside of this function.
-    - This function utilizes the matplotlib_venn.venn2 function for creating the Venn diagram and
-      matplotlib for plotting and saving the figure. Ensure these libraries are imported and properly configured.
-    """    
-    
+def venn_net(tblr, tblc, tblr_label, tblc_label, p_net_overlap,tblr_lim=1.5, tblc_lim=1.5, comb_lim=3, savefig=False):
+    print(tblr_lim)
     #combine zscore tables
-    tbl_z=pd.concat([tblr, tblc], axis=1)
-    tbl_z.columns=('z1','z2')
-    tbl_z['z_comb']=tbl_z['z1']*tbl_z['z2']
+    tbl_z=combine_nps_table(tblr, tblc)
     #subset table to those within network limit parameters
-    inNetwork=tbl_z[(tbl_z['z1']>=tblr_lim) & (tbl_z['z2']>=tblc_lim) & (tbl_z['z_comb']>=comb_lim)]
+    inNetwork=tbl_z[(tbl_z['NPSr']>tblr_lim) & (tbl_z['NPSc']>tblc_lim) & (tbl_z['NPScr']>comb_lim)]
+    print(len(inNetwork))
     #plot venn diagram
-    venn2(((len(tbl_z[tbl_z['z1']>tblr_lim])-len(inNetwork)), (len(tbl_z[tbl_z['z2']>tblc_lim])-len(inNetwork)), len(inNetwork)), 
-          set_labels=(tblr_label, tblc_label), 
-          set_colors=(color_dict['rare'], color_dict['common']), alpha = 0.7)
+    Nr=(len(tbl_z[tbl_z['NPSr']>tblr_lim])-len(inNetwork))
+    Nc=(len(tbl_z[tbl_z['NPSc']>tblc_lim])-len(inNetwork))
+    Nboth=len(inNetwork)
+    venn2((Nr,Nc,Nboth), 
+		  set_labels=(tblr_label, tblc_label),
+      set_colors=(color_dict['rare'], color_dict['common']), alpha = 0.7)
     plt.title('p='+str(p_net_overlap)+ ', single cut='+str(tblr_lim)+', comb cut='+str(comb_lim))
     if savefig:
-        plt.savefig('figures/network_venn/network_venn_'+tblr_label+'_'+tblc_label+UUID_tag[interactome_name]+'.svg',bbox_inches='tight')
+        plt.savefig('figures/network_venn/network_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
     
 #adapted from BMI
@@ -200,7 +175,7 @@ def venn_seeds(tblr_seed, tblc_seed, tblr_label, tblc_label, all_nodes, savefig=
           set_colors=(color_dict['rare'], color_dict['common']), alpha = 0.7)
     plt.title(' Seed Gene Overlap, p='+str(p_intersect_seed))
     if (savefig):
-        plt.savefig('figures/seed_venn/seed_venn_'+tblr_label+'_'+tblc_label+UUID_tag[interactome_name]+'.svg',bbox_inches='tight')
+        plt.savefig('figures/seed_venn/seed_venn_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
 
 #adapted from BMI functions
@@ -243,7 +218,7 @@ def plt_histogram (tblr, tblc, tblr_label, tblc_label, tblr_seed, tblc_seed, tbl
     plt.axvline(x = 0, color='black', linestyle = 'solid', linewidth=1)
     plt.axhline(y = 0, color = 'black', linestyle = 'solid', linewidth=1)
     if (savefig):
-        plt.savefig('figures/histogram/histogram_'+tblr_label+'_'+tblc_label+UUID_tag[interactome_name]+'.svg',bbox_inches='tight')
+        plt.savefig('figures/histogram/histogram_'+tblr_label+'_'+tblc_label+'.svg',bbox_inches='tight')
     plt.show()
 
 
@@ -773,7 +748,7 @@ def manhattan(p1, pos1, chr1, label1,
 
     return plt
 
-def plot_permutation_histogram(permuted, observed, title="", xlabel="Observed vs Permuted", color="cornflowerblue", arrow_color="red"):
+def plot_permutation_histogram(permuted, observed, title="", xlabel="Observed vs Permuted", color='#CCCCCC', arrow_color="blue",save_fig=False, filename=None):
     """Plot an observed value against a distribution of permuted values. Adapted from BMI
 
     Args:
@@ -800,6 +775,10 @@ def plot_permutation_histogram(permuted, observed, title="", xlabel="Observed vs
     plt.yticks(fontsize=12)
     plt.locator_params(axis="y", nbins=6)
     plt.title(title + " (p=" + str(get_p_from_permutation_results(observed, permuted)) + ")", fontsize=16)
+    
+    if save_fig:
+        plt.savefig('figures/' + filename + '.svg', bbox_inches='tight')
+
 
 ## Extensions to NetColoc ------------------------------------------------------------------------------------
 def get_p_from_permutation_results(observed, permuted):
@@ -826,7 +805,7 @@ def calculate_mean_z_score_distribution(z1, z2, num_reps=1000, zero_double_negat
     Args:
         z1 (pd.Series, pd.DataFrame): Vector of z-scores from network propagation of trait 1
         z2 (pd.Series, pd.DataFrame): Vector of z-scores from network propagation of trait 2
-        num_reps (int): Number of permutation analyses to perform. Defaults to 1000
+        num_reps (int): Number of perumation analyses to perform. Defaults to 1000
         zero_double_negatives (bool, optional): Should genes that have a negative score in both `z1` and `z2` be ignored? Defaults to True.
         overlap_control (str, optional): 'bin' to permute overlapping seed genes separately, 'remove' to not consider overlapping seed genes. Any other value will do nothing. Defaults to "remove".
         seed1 (list, optional): List of seed genes used to generate `z1`. Required if `overlap_control!=None`. Defaults to [].
@@ -841,7 +820,46 @@ def calculate_mean_z_score_distribution(z1, z2, num_reps=1000, zero_double_negat
     if isinstance(z2, pd.Series):
         z2 = pd.DataFrame(z2, columns=["z"])
     z1z2 = z1.join(z2, lsuffix="1", rsuffix="2")
-    z1z2 = z1z2.assign
+    z1z2 = z1z2.assign(zz=z1z2.z1 * z1z2.z2)
+    #print(z1z2.head())
+    if overlap_control == "remove":
+        seed_overlap = list(set(seed1).intersection(set(seed2)))
+        print("Overlap seed genes:", len(seed_overlap))
+        z1z2.drop(seed_overlap, axis=0, inplace=True)
+    elif overlap_control == "bin":
+        seed_overlap = list(set(seed1).intersection(set(seed2)))
+        print("Overlap seed genes:", len(seed_overlap))
+        overlap_z1z2 = z1z2.loc[seed_overlap]
+        overlap_z1 = np.array(overlap_z1z2.z1)
+        z1z2.drop(seed_overlap, axis=0, inplace=True)
+    z1 = np.array(z1z2.z1)
+    z2 = np.array(z1z2.z2)
+    if zero_double_negatives:
+        for node in z1z2.index:
+            if (z1z2.loc[node].z1 < 0 and z1z2.loc[node].z2 < 0):
+                z1z2.loc[node, 'zz'] = 0
+    permutation_means = np.zeros(num_reps)
+    for i in tqdm(range(num_reps)):
+        perm_z1z2 = np.zeros(len(z1))
+        np.random.shuffle(z1)
+
+        for node in range(len(z1)):
+            if not zero_double_negatives or not (z1[node] < 0 and z2[node] < 0):
+                perm_z1z2[node] = z1[node] * z2[node]
+            else:
+                perm_z1z2[node] = 0
+        if overlap_control == "bin":
+            overlap_perm_z1z2 = np.zeros(len(overlap_z1))
+            np.random.shuffle(overlap_z1) 
+            for node in range(len(overlap_z1)):
+                if zero_double_negatives and (overlap_z1[node] < 0 and z2[node] < 0):
+                    overlap_perm_z1z2[node] = 0
+                else:
+                    overlap_perm_z1z2[node] = overlap_z1[node] * z2[node]
+            perm_z1z2 = np.concatenate([perm_z1z2, overlap_perm_z1z2])
+                    
+        permutation_means[i] = np.mean(perm_z1z2)
+    return np.mean(z1z2.zz), permutation_means
 
 def format_catalog(catalog=None):
 	try:
@@ -851,14 +869,14 @@ def format_catalog(catalog=None):
 		#filter for genes that were mapped
 		mapped=catalog[~catalog['MAPPED_GENE'].isna()]
 		mapped=mapped[~mapped['MAPPED_TRAIT'].isna()]
-		mapped=mapped[['MAPPED_GENE','MAPPED_TRAIT','DISEASE/TRAIT']]
-		mapped.columns=['GENE','MAPPED_TRAIT','DISEASE/TRAIT']
+		mapped=mapped[['MAPPED_GENE','MAPPED_TRAIT','DISEASE/TRAIT','PUBMEDID']]
+		mapped.columns=['GENE','MAPPED_TRAIT','DISEASE/TRAIT','PUBMEDID']
 		#filter for genes that were reported
 		rep=catalog[~catalog['REPORTED GENE(S)'].isna()]
 		rep=rep[~rep['MAPPED_TRAIT'].isna()]
 		rep=rep[~rep['REPORTED GENE(S)'].str.contains('Intergenic')]
-		rep=rep[['REPORTED GENE(S)','MAPPED_TRAIT','DISEASE/TRAIT']]
-		rep.columns=['GENE','MAPPED_TRAIT','DISEASE/TRAIT']
+		rep=rep[['REPORTED GENE(S)','MAPPED_TRAIT','DISEASE/TRAIT','PUBMEDID']]
+		rep.columns=['GENE','MAPPED_TRAIT','DISEASE/TRAIT','PUBMEDID']
 		cat=pd.concat([rep, mapped])
 		cat['GENE']=cat['GENE'].str.split('; ')
 		cat=cat.explode('GENE')
@@ -869,7 +887,7 @@ def format_catalog(catalog=None):
 		cat=cat.explode('GENE')
 		cat['GENE']=cat['GENE'].astype('str')
 		cat=cat[~(cat['GENE'].str.contains('intergenic'))]
-		cat['TRAIT']=cat['MAPPED_TRAIT'] + ": " +cat['DISEASE/TRAIT']
+		cat['TRAIT']=cat['MAPPED_TRAIT'] + ": " +cat['DISEASE/TRAIT']+ " (PMID: "+(cat['PUBMEDID'].astype(str))+")"
 		cat=cat.dropna()
 		return(cat)
 	except:
@@ -951,3 +969,58 @@ def format_subset_cat(cat):
 	cat=cat.groupby('GENE').agg(tuple).applymap(set).reset_index()
 	cat=cat[['GENE','TRAIT']]
 	return(cat)
+def f_test(group1, group2):
+   f = np.var(group1, ddof=1)/np.var(group2, ddof=1)
+   nun = np.array(group1).size-1
+   dun = np.array(group2).size-1
+   p_value = 1-stats.f.cdf(f, nun, dun)
+   return f, p_value
+
+def combine_nps_table(tblr, tblc):
+    tbl_z=pd.concat([tblr, tblc], axis=1)
+    tbl_z.columns=('z1','z2')
+    tbl_z['z_comb']=tbl_z['z1']*tbl_z['z2']
+    tbl_z.columns=['NPSr','NPSc','NPScr']
+    return(tbl_z)
+
+def venn_rare_test(t1, t2, t3, labels,colors):
+    only_t1 = len(t1 - t2 - t3)
+    only_t2 = len(t2 - t1 - t3)
+    only_t3 = len(t3 - t1 - t2)
+    
+    only_t1_t2 = len(t1 & t2 - t3)
+    only_t1_t3 = len(t1 & t3 - t2)
+    only_t2_t3 = len(t2 & t3 - t1)
+
+    t1_t2_t3 = len(t1 & t2 & t3)
+    venn3(subsets=(only_t1, only_t2, only_t1_t2, only_t3, only_t1_t3, only_t2_t3, t1_t2_t3), set_labels=labels,set_colors=colors,alpha=.6)
+    plt.show()
+	
+def NPS_lineplot(df,metric, filename, xrange=None, yrange=None, save_fig=False, sigline=False):
+    matplotlib.rcParams.update({'font.size': 8})
+    df['-log10(p)']=-np.log10(df['empirical_p'])
+
+    # Group data by NPS_single and plot each group separately
+    groups = df.groupby('NPS_single')
+    
+    # Initialize a plot
+    fig, ax = plt.subplots(figsize=(2.75, 2))
+    
+    # Plot lines for each NPS_single group
+    for name, group in groups:
+        ax.plot(group['NPS_common-rare'], group[metric], marker='o', label=f'NPS_single={name}')
+    if sigline:
+	    ax.axhline(y =-np.log10(0.05/len(df)), color = 'red', linestyle = 'dashed', linewidth=1)
+    if ~(yrange is None):
+        ax.set_ylim(yrange)
+    if ~(xrange is None):
+        ax.set_xlim(xrange)    
+    # Set plot labels
+    ax.set_xlabel('NPS combined') 
+    ax.set_ylabel(metric.replace('_',' '))
+    ax.legend(title='NPS single')
+    ax.grid(True)
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    if save_fig:
+        plt.savefig('figures/'+filename,bbox_inches='tight')
+    plt.show()
