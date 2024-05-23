@@ -517,10 +517,10 @@ def manhattan(pval, pos, chr, label,
     # Generate list of chromosomes for chr_plot from chr if chr_plot doesn't exist
     if chrs_plot is None:
         chrs_list = np.unique(chr)
-        chrs_list = sorted_nicely(chrs_list) if isinstance(chrs_list[0], str) else chrs_list.sort()
-    else:
-        chrs_list = chrs_plot
-
+        if isinstance(chrs_list[0], str):
+            chrs_list = sorted_nicely(chrs_list)  # Assuming sorted_nicely is defined elsewhere
+        else:
+            chrs_list.sort()
     # Create labels from chr for chromosomes if not provided
     if chrs_names is None:
         chrs_names = [str(chrs_list[i]) for i in range(len(chrs_list))]
