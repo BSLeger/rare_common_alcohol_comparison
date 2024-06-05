@@ -29,7 +29,7 @@ Briefly, this repository was used to generate a molecular gene network from rare
 * Additional requirements for full functionality: cdapsutil >= 0.2.0a1 which can be installed using pip install cdapsutil
 
 ## Contents of this repository:
-* conda_environment.yml- contains the packages needed for running these functions. NOTE: These notebooks require NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
+* conda_environment.yml- exported conda environment that was used for this analysis. NOTE: These notebooks require NetColoc (https://github.com/ucsd-ccbb/NetColoc), which in turn requires DDOT and cdapsutil. 
 * common_datasets_prepub.csv- contains meta data for common variant traits in this repository. Called by all notebooks
 * rare_datasets_prepub.csv- contains meta data for rare variant traits in this repository. Called by all notebooks
 
