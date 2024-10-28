@@ -127,68 +127,64 @@ def import_nps_zscores(z_path, interactome_name='pcnet_v14'):
     return(zscore_rare_df)
 
 
-def import_interactome(interactome_name=None, ndex_user=None, ndex_password=None,UUID=None):
+def import_interactome(interactome_name=None, UUIDs=UUIDs,ndex_user=None, ndex_password=None, UUID=None):
     """
-    Imports a gene interactome from the NDEx database and returns it as a NetworkX graph object. Optionally,
-    the function allows for importing using a unique identifier (UUID) or by an interactome name.
-
-    The function checks if the interactome name provided corresponds to a predefined dictionary of UUIDs. If it does, it
-    retrieves the network using the specified credentials. If an interactome name is not provided but a UUID is,
-    it retrieves the network using the provided UUID. The nodes of pcnet_v14 are relabelled by their gene name rather than ID number.
-
+    Imports a gene interactome from the NDEx database and returns it as a NetworkX graph object.
+    Optionally, the function allows for importing using a unique identifier (UUID) or by an interactome name.
+    
     Parameters:
-    - interactome_name (str, optional): The name of the interactome as defined in the UUIDs dictionary. If not provided
-      but a UUID is, the interactome associated with the UUID is imported instead.
-    - ndex_user (str, optional): The NDEx account username for accessing private networks.
-    - ndex_password (str, optional): The NDEx account password for accessing private networks.
-    - UUID (str, optional): A specific UUID to directly download an interactome from NDEx if the interactome name is not used.
+    - interactome_name (str, optional)
+	- UUIDs (str,optional): dictionary of UUIDs
+    - ndex_user (str, optional)
+    - ndex_password (str, optional)
+    - UUID (str, optional)
 
     Returns:
-    networkx.Graph: A graph object representing the interactome. Nodes and edges represent genes and their interactions, respectively.
-
-    Notes:
-    - The function uses the NDEx2 Python client and requires Internet access to NDEx's servers.
-    - Depending on the access rights of the NDEx account, private or public interactomes can be retrieved.
-    - The function prints the number of nodes and edges of the imported graph for diagnostic purposes.
-
+    networkx.Graph: A graph object representing the interactome.
+    
     Raises:
     - ValueError: If neither an interactome name nor a UUID is provided.
-    """    
-    interactome_uuid=UUIDs[interactome_name]
-    print(interactome_name)
-    ndex_server='public.ndexbio.org'
-    #import network based on provided interactome key
-    if (interactome_name in UUIDs.keys()):
+    """
+    
+    ndex_server = 'public.ndexbio.org'
+    # import network based on provided interactome key
+    if interactome_name in UUIDs.keys():
+        interactome_uuid = UUIDs[interactome_name]
+        print(interactome_name)
         graph = ndex2.create_nice_cx_from_server(
-                    ndex_server, 
-                    username=ndex_user, 
-                    password=ndex_password, 
-                    uuid=interactome_uuid
-                ).to_networkx()
-        if (interactome_name=='pcnet_v14'):
-            graph=nx.relabel_nodes(graph, nx.get_node_attributes(graph, 'HGNC Symbol'))
+            ndex_server, 
+            username=ndex_user, 
+            password=ndex_password, 
+            uuid=interactome_uuid
+        ).to_networkx()
+        if interactome_name == 'pcnet_v14':
+            graph = nx.relabel_nodes(graph, nx.get_node_attributes(graph, 'HGNC Symbol'))
+        
         # print out interactome num nodes and edges for diagnostic purposes
         print('number of nodes:')
         print(len(graph.nodes))
         print('\nnumber of edges:')
         print(len(graph.edges))
-        return(graph)
-    elif(interactome_name==None & UUID!=None):
-        print('using novel UUID. For UUIDs used in this study, see UUID_dict')
+        return graph
+
+    elif interactome_name is None and UUID is not None:
+        print('using novel UUID. For UUIDs used in this study, see UUIDs')
         graph = ndex2.create_nice_cx_from_server(
             ndex_server, 
             username=ndex_user, 
             password=ndex_password, 
             uuid=UUID
         ).to_networkx()
+        
         # print out interactome num nodes and edges for diagnostic purposes
         print('number of nodes:')
         print(len(graph.nodes))
         print('\nnumber of edges:')
-        print(len(graph.edges))
-        return(graph)
+        return graph
+
     else:
         print('UUID/interactome name not provided- please provide either to import interactome.')
+
 
 # network formatting functions
 def format_network(network, traitr, traitc, seedr, seedc,zr, zc):
@@ -702,7 +698,7 @@ def plot_permutation_histogram(permuted, observed, title="", xlabel="Observed vs
         color (str, optional): The color of the histogram. Defaults to "cornflowerblue".
         arrow_color (str, optional): The color of the arrow pointing to observed value. Defaults to "red".
     """
-    plt.figure(figsize=(5, 4))
+    plt.figure(figsize=(4, 4))
     dfig = sns.histplot(permuted, label='Permuted', alpha=0.4, stat='density', bins=25, kde=True, 
                         edgecolor='w', color=color)
     params = {'mathtext.default': 'regular'}          
