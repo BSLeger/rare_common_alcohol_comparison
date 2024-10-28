@@ -126,7 +126,6 @@ def import_nps_zscores(z_path, interactome_name='pcnet_v14'):
     print(zscore_rare_df.head())
     return(zscore_rare_df)
 
-
 def import_interactome(interactome_name=None, UUIDs=UUIDs,ndex_user=None, ndex_password=None, UUID=None):
     """
     Imports a gene interactome from the NDEx database and returns it as a NetworkX graph object.
